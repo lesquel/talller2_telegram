@@ -1,6 +1,44 @@
-# MesaYa Microservices Architecture
+<div align="center">
 
-Este proyecto implementa la arquitectura de microservicios para MesaYa, separando el monolito original en servicios independientes con comunicación asíncrona via RabbitMQ.
+# 🍽️ MesaYa - Sistema de Reservas con Microservicios
+
+### **Taller 2: Webhooks Idempotentes con Notificaciones en Tiempo Real**
+
+[![NestJS](https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white)](https://nestjs.com/)
+[![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](https://www.rabbitmq.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white)](https://redis.io/)
+[![Supabase](https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
+[![Telegram](https://img.shields.io/badge/Telegram-2CA5E0?style=for-the-badge&logo=telegram&logoColor=white)](https://telegram.org/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+
+---
+
+## 🎬 Video Explicativo
+
+<a href="./video de explicacion.mp4">
+  <img src="https://img.shields.io/badge/▶_VER_VIDEO_EXPLICATIVO-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Ver Video" width="300"/>
+</a>
+
+> 📺 **Haz clic en el botón de arriba** para ver la demostración completa del sistema funcionando con notificaciones de Telegram en tiempo real.
+
+---
+
+</div>
+
+## ✨ ¿Qué es MesaYa?
+
+**MesaYa** es un sistema de gestión de reservas para restaurantes construido con arquitectura de **microservicios**. Este proyecto implementa el **Taller 2** de la materia Servidores Web, enfocándose en:
+
+| Característica                 | Descripción                                                           |
+| ------------------------------ | --------------------------------------------------------------------- |
+| 🔄 **Webhooks Idempotentes**   | Sistema de notificaciones que garantiza entrega única (exactly-once)  |
+| 📱 **Notificaciones Telegram** | Alertas en tiempo real cuando se crean, confirman o cancelan reservas |
+| 🔐 **Firma HMAC-SHA256**       | Seguridad criptográfica para validar autenticidad de webhooks         |
+| ⚡ **Cola de Reintentos**      | Bull/Redis para reintentar entregas fallidas con backoff exponencial  |
+| 🏗️ **Supabase Edge Functions** | Funciones serverless para procesar webhooks                           |
+
+---
 
 ## 📁 Estructura del Proyecto
 
@@ -193,3 +231,113 @@ node gateway/tools/chaos-test.js
             │ Redis  │ ◄── Idempotency keys
             └────────┘
 ```
+
+---
+
+## 🔔 Taller 2: Sistema de Webhooks Idempotentes
+
+### 📋 Flujo de Webhooks
+
+```
+┌──────────────┐    ┌─────────────────┐    ┌─────────────────────┐
+│   Reserva    │───▶│  Webhook Event  │───▶│  Bull Queue (Redis) │
+│   Creada     │    │  + HMAC Sign    │    │  Con Reintentos     │
+└──────────────┘    └─────────────────┘    └──────────┬──────────┘
+                                                      │
+                    ┌─────────────────────────────────┘
+                    ▼
+    ┌───────────────────────────────────────────────────────────┐
+    │                   Supabase Edge Functions                  │
+    │  ┌─────────────────────┐    ┌─────────────────────────┐   │
+    │  │  webhook-event-     │    │  webhook-external-      │   │
+    │  │  logger             │    │  notifier               │   │
+    │  │  (Guarda eventos)   │    │  (Envía a Telegram)     │   │
+    │  └─────────────────────┘    └────────────┬────────────┘   │
+    └──────────────────────────────────────────┼────────────────┘
+                                               │
+                                               ▼
+                                    ┌─────────────────────┐
+                                    │   📱 Telegram Bot   │
+                                    │  @mesaya_notif_bot  │
+                                    └─────────────────────┘
+```
+
+### 🛡️ Seguridad con HMAC-SHA256
+
+Cada webhook incluye una firma criptográfica para garantizar autenticidad:
+
+```javascript
+// El publisher firma el payload
+const signature = crypto
+  .createHmac("sha256", WEBHOOK_SECRET)
+  .update(JSON.stringify(payload))
+  .digest("hex");
+
+// Header enviado: X-Webhook-Signature: sha256=abc123...
+```
+
+### 📱 Notificaciones en Telegram
+
+El sistema envía notificaciones automáticas a Telegram para:
+
+| Evento                     | Mensaje                           |
+| -------------------------- | --------------------------------- |
+| 🍽️ `reservation.created`   | Nueva reserva creada con detalles |
+| ✅ `reservation.confirmed` | Reserva confirmada                |
+| ❌ `reservation.cancelled` | Reserva cancelada                 |
+| 🔴 `table.occupied`        | Mesa ocupada                      |
+| 🟢 `table.released`        | Mesa liberada                     |
+
+### 🔄 Reintentos con Backoff Exponencial
+
+Si un webhook falla, se reintenta automáticamente:
+
+| Intento | Delay                        |
+| ------- | ---------------------------- |
+| 1       | 1 segundo                    |
+| 2       | 2 segundos                   |
+| 3       | 4 segundos                   |
+| 4       | 8 segundos                   |
+| 5       | 16 segundos (último intento) |
+
+---
+
+## 🧪 Scripts de Prueba
+
+### Prueba Rápida
+
+```powershell
+cd scripts
+.\quick-test.ps1
+```
+
+### Suite Completa de Pruebas
+
+```powershell
+cd scripts
+.\test-webhooks.ps1           # Todas las pruebas
+.\test-webhooks.ps1 -Test create      # Solo crear reserva
+.\test-webhooks.ps1 -Test confirm     # Solo confirmar
+.\test-webhooks.ps1 -Test cancel      # Solo cancelar
+.\test-webhooks.ps1 -Test idempotency # Probar idempotencia
+.\test-webhooks.ps1 -Test direct      # Webhook directo a Supabase
+```
+
+---
+
+## 👨‍💻 Autor
+
+**Estudiante:** Kevin Loor  
+**Materia:** Servidores Web  
+**Universidad:** Universidad Laica Eloy Alfaro de Manabí (ULEAM)  
+**Semestre:** 5to Semestre - 2025
+
+---
+
+<div align="center">
+
+### ⭐ Si te gustó este proyecto, ¡dale una estrella!
+
+**Hecho con ❤️ usando NestJS, RabbitMQ, Supabase y Telegram**
+
+</div>
