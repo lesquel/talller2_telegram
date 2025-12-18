@@ -16,8 +16,8 @@
 
 ## 🎬 Video Explicativo
 
-<a href="./video de explicacion.mp4">
-  <img src="https://img.shields.io/badge/▶_VER_VIDEO_EXPLICATIVO-FF0000?style=for-the-badge&logo=youtube&logoColor=white" alt="Ver Video" width="300"/>
+<a href="https://drive.google.com/file/d/13eJHvdU_cRGLEXBBq3XsO3Myl29t0lTZ/view?usp=sharing">
+  <img src="https://img.shields.io/badge/▶_VER_VIDEO_EXPLICATIVO-FF0000?style=for-the-badge&logo=googledrive&logoColor=white" alt="Ver Video" width="350"/>
 </a>
 
 > 📺 **Haz clic en el botón de arriba** para ver la demostración completa del sistema funcionando con notificaciones de Telegram en tiempo real.
