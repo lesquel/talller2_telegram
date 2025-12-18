@@ -323,16 +323,6 @@ cd scripts
 .\test-webhooks.ps1 -Test direct      # Webhook directo a Supabase
 ```
 
----
-
-## 👨‍💻 Autor
-
-**Estudiante:** Kevin Loor  
-**Materia:** Servidores Web  
-**Universidad:** Universidad Laica Eloy Alfaro de Manabí (ULEAM)  
-**Semestre:** 5to Semestre - 2025
-
----
 
 <div align="center">
 
