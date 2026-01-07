@@ -1,0 +1,24 @@
+[submodule "mesaYa_frontend"]
+	path = mesaYA_frontend
+	url = https://github.com/StevSant/mesaYa_frontend.git
+  branch = main
+
+[submodule "mesaYA_Res"]
+	path = mesaYA_Res
+	url = https://github.com/lesquel/mesaYa_Res.git
+  branch = main
+[submodule "mesaYA_graphql"]
+	path = mesaYA_graphql
+	url = https://github.com/StevSant/mesaYA_graphql.git
+[submodule "mesaYA_ws"]
+	path = mesaYA_ws
+	url = https://github.com/GINGERPEREZ/websocket.git
+[submodule "mesaYA_chatbot_service"]
+	path = mesaYA_chatbot_service
+	url = https://github.com/StevSant/mesaYA_chatbot_service.git
+[submodule "mesaYA_mcp"]
+	path = mesaYA_mcp
+	url = https://github.com/StevSant/mesaYA_mcp.git
+[submodule "mesaYA_auth_ms"]
+	path = mesaYA_auth_ms
+	url = https://github.com/StevSant/mesaYA_auth_ms.git
